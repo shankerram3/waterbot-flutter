@@ -20,4 +20,5 @@ flutter:
    uses-material-design: true
    assets:
       - assets/images/WaterDrop1.png
+      - assets/images/background.png
 

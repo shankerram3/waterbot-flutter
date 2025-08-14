@@ -67,6 +67,8 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Arizona Water Chatbot'),
+        backgroundColor: Colors.transparent, // NEW (let image show through)
+        elevation: 0, // NEW
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
@@ -97,54 +99,63 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              itemCount: chat.messages.length,
-              itemBuilder: (context, index) {
-                final m = chat.messages[index];
-                return MessageBubble(message: m);
-              },
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background.png'), // <- your file
+            fit: BoxFit.cover,
           ),
-          if (chat.isTyping) const TypingIndicator(),
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      focusNode: _focusNode,
-                      decoration: InputDecoration(
-                        hintText: 'Type your question here',
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 14),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                      ),
-                      onSubmitted: (_) => _send(),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: _send,
-                    icon: const Icon(Icons.send),
-                    color: const Color(0xFF8C1D40),
-                  ),
-                ],
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                itemCount: chat.messages.length,
+                itemBuilder: (context, index) {
+                  final m = chat.messages[index];
+                  return MessageBubble(message: m);
+                },
               ),
             ),
-          ),
-        ],
+            if (chat.isTyping) const TypingIndicator(),
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        focusNode: _focusNode,
+                        decoration: InputDecoration(
+                          hintText: 'Type your question here',
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 14),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                        ),
+                        onSubmitted: (_) => _send(),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: _send,
+                      icon: const Icon(Icons.send),
+                      color: const Color(0xFF8C1D40),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -167,6 +178,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 }
+
 class MessageBubble extends StatelessWidget {
   const MessageBubble({super.key, required this.message});
 
@@ -177,58 +189,83 @@ class MessageBubble extends StatelessWidget {
     final theme = Theme.of(context);
     final isUser = message.role == Role.user;
     final bg = isUser
-        ? const LinearGradient(colors: [Color(0xFF2B79C2), Color(0xFF215F9C), Color(0xFF184B79)])
+        ? const LinearGradient(colors: [Color(0xFFEEEEEE), Color(0xFFEEEEEE)])
         : const LinearGradient(colors: [Color(0xFFEEEEEE), Color(0xFFEEEEEE)]);
 
     final radius = BorderRadius.only(
       topLeft: const Radius.circular(12),
       topRight: const Radius.circular(12),
-      bottomLeft: Radius.circular(isUser ? 4 : 12),
-      bottomRight: Radius.circular(isUser ? 12 : 4),
+      bottomLeft: Radius.circular(isUser ? 10 : 9),
+      bottomRight: Radius.circular(isUser ? 12 : 15),
     );
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment:
+            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
           if (!isUser) ...[
-            const _Drop(size: 20, asset: 'assets/images/WaterDrop1.png'),
+            const _Drop(size: 25, asset: 'assets/images/WaterDrop1.png'),
             const SizedBox(width: 8),
           ],
           Flexible(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: bg,
-                color: isUser ? null : const Color(0xFFEEEEEE),
-                borderRadius: radius,
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              child: isUser
-                  ? Text(
-                message.text,
-                style: const TextStyle(color: Colors.white),
-              )
-                  : MarkdownBody(
-                data: message.text,
-                onTapLink: (t, href, title) async {
-                  if (href == null) return;
-                  final uri = Uri.parse(href);
-                  if (await canLaunchUrl(uri)) {
-                    await launchUrl(uri);
-                  }
-                },
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: bg,
+                    color: isUser ? null : const Color(0xFFEEEEEE),
+                    borderRadius: radius,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  child: isUser
+                      ? Text(
+                          message.text,
+                          style: const TextStyle(color: Colors.black),
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            MarkdownBody(
+                              data: message.text,
+                              onTapLink: (t, href, title) async {
+                                if (href == null) return;
+                                final uri = Uri.parse(href);
+                                if (await canLaunchUrl(uri)) {
+                                  await launchUrl(uri);
+                                }
+                              },
+                            ),
+                            const SizedBox(height: 6), // spacing
+                            _Reactions(message: message), // now appears under text
+                          ],
+                        ),
+                ),
+                isUser ?Transform.translate(
+                  offset: const Offset(5, -11), // move up 2 pixels
+                  child: BubbleTail(
+                    isUser: true,
+                    color: isUser ? const Color(0xFFEEEEEE) : const Color(0xFFEEEEEE),
+                  ),
+                ):Transform.translate(
+    offset: const Offset(-351, -11), // move up 2 pixels
+    child: BubbleTail(
+    isUser: false,
+    color: isUser ? const Color(0xFFEEEEEE) : const Color(0xFFEEEEEE),
+    )),
+              ],
             ),
           ),
           if (isUser) const SizedBox(width: 8),
-          if (isUser) _Reactions(message: message),
         ],
       ),
     );
   }
 }
+
 class _Reactions extends StatelessWidget {
   const _Reactions({required this.message});
   final ChatMessage message;
@@ -270,6 +307,7 @@ class _Reactions extends StatelessWidget {
     );
   }
 }
+
 class _FeedbackSheet extends StatefulWidget {
   @override
   State<_FeedbackSheet> createState() => _FeedbackSheetState();
@@ -278,7 +316,12 @@ class _FeedbackSheet extends StatefulWidget {
 class _FeedbackSheetState extends State<_FeedbackSheet> {
   String? selected;
   final controller = TextEditingController();
-  final options = const ['Factually incorrect', 'Generic response', 'Refused to answer', 'Other'];
+  final options = const [
+    'Factually incorrect',
+    'Generic response',
+    'Refused to answer',
+    'Other'
+  ];
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -291,11 +334,12 @@ class _FeedbackSheetState extends State<_FeedbackSheet> {
             spacing: 8,
             children: options
                 .map((o) => ChoiceChip(
-              label: Text(o),
-              selected: selected == o,
-              onSelected: (v) => setState(() => selected = o),
-              color: WidgetStateProperty.resolveWith((states) => Colors.amber.shade400),
-            ))
+                      label: Text(o),
+                      selected: selected == o,
+                      onSelected: (v) => setState(() => selected = o),
+                      color: WidgetStateProperty.resolveWith(
+                          (states) => Colors.amber.shade400),
+                    ))
                 .toList(),
           ),
           const SizedBox(height: 12),
@@ -311,7 +355,11 @@ class _FeedbackSheetState extends State<_FeedbackSheet> {
           Align(
             alignment: Alignment.centerRight,
             child: FilledButton(
-              onPressed: () => Navigator.pop(context, [selected, controller.text].where((e) => (e ?? '').isNotEmpty).join(', ')),
+              onPressed: () => Navigator.pop(
+                  context,
+                  [selected, controller.text]
+                      .where((e) => (e ?? '').isNotEmpty)
+                      .join(', ')),
               child: const Text('Submit'),
             ),
           )
@@ -320,6 +368,7 @@ class _FeedbackSheetState extends State<_FeedbackSheet> {
     );
   }
 }
+
 class TypingIndicator extends StatelessWidget {
   const TypingIndicator({super.key});
 
@@ -340,6 +389,7 @@ class TypingIndicator extends StatelessWidget {
     );
   }
 }
+
 class _Dot extends StatefulWidget {
   const _Dot({this.delay = 0});
   final int delay;
@@ -348,12 +398,14 @@ class _Dot extends StatefulWidget {
 }
 
 class _DotState extends State<_Dot> with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 750));
+  late final AnimationController _c = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 750));
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(milliseconds: widget.delay), () => _c.repeat(reverse: true));
+    Future.delayed(
+        Duration(milliseconds: widget.delay), () => _c.repeat(reverse: true));
   }
 
   @override
@@ -380,4 +432,48 @@ class _Drop extends StatelessWidget {
   Widget build(BuildContext context) {
     return Image.asset(asset, height: size);
   }
+}
+
+class BubbleTail extends StatelessWidget {
+  final bool isUser;
+  final Color color;
+  const BubbleTail({required this.isUser, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: const Size(12, 10), // width, height
+      painter: _BubbleTailPainter(isUser: isUser, color: color),
+    );
+  }
+}
+
+class _BubbleTailPainter extends CustomPainter {
+  final bool isUser;
+  final Color color;
+  _BubbleTailPainter({required this.isUser, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color;
+    final path = Path();
+
+    if (isUser) {
+      // Tail on bottom right
+      path.moveTo(0, 0);
+      path.lineTo(size.width, size.height / 1.5);
+      path.lineTo(0, size.height);
+    } else {
+      // Tail on bottom left
+      path.moveTo(size.width, 0);
+      path.lineTo(0, size.height / 1.5);
+      path.lineTo(size.width, size.height);
+    }
+
+    path.close();
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(_) => false;
 }
